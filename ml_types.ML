@@ -176,3 +176,5 @@ fun ml_type_of ctxt s =
   end
 
 end
+
+type ml_type = ML_Types.ml_type
