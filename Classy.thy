@@ -9,4 +9,12 @@ begin
 ML_file "ml_types.ML"
 ML_file "classy.ML"
 
+ML_file "pretty_class.ML"
+
+ML.class pretty = \<open>'a pretty_class\<close>
+
+ML.instance \<open>Pretty_Class.string\<close> :: pretty
+ML.instance \<open>Pretty_Class.pretty\<close> :: pretty
+ML.instance \<open>Pretty_Class.list\<close> :: pretty
+
 end
