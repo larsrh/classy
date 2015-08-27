@@ -1,5 +1,7 @@
 datatype 'a pretty_class = Pretty of ('a -> Pretty.T)
 
+fun format (Pretty f) = f
+
 structure Pretty_Class = struct
 
 val string: string pretty_class = Pretty Pretty.str

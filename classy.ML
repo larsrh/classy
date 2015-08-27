@@ -2,14 +2,18 @@ signature CLASSY = sig
   val register_class: binding -> ML_Types.ml_type -> local_theory -> local_theory
   val register_class_cmd: binding -> string -> local_theory -> local_theory
 
-  val register_instance_cmd: xstring * Position.T -> binding  -> Input.source -> local_theory -> local_theory
+  val register_instance_cmd: xstring * Position.T -> binding -> Input.source -> local_theory -> local_theory
 
   val print_classes: Context.generic -> unit
+
+  val resolve: xstring * Position.T -> ML_Types.ml_type -> Context.generic -> string
+
+  val setup: theory -> theory
 end
 
 structure Classy: CLASSY = struct
 
-type class_table = (ml_type * (ml_type * Input.source) Name_Space.table) Name_Space.table
+type class_table = (ml_type * (ml_type * string) Name_Space.table) Name_Space.table
 
 exception DUP
 
@@ -20,6 +24,54 @@ structure Classes = Generic_Data
   val merge = Name_Space.join_tables (fn _ => raise DUP) (* FIXME consistency check *)
   val extend = I
 )
+
+fun list_comb (term: string) (args: string list) =
+  space_implode " " (enclose "(" ")" term :: map (enclose "(" ")") args)
+
+fun product [] = [[]]
+  | product (xs :: xss) =
+      maps (fn xs' => map (fn x => x :: xs') xs) (product xss)
+
+
+fun solve entries problem =
+  let
+    fun find (typ, term) =
+      let
+        val (args, candidate) = ML_Types.strip_fun typ
+      in
+        case ML_Types.match candidate problem [] of
+          SOME env =>
+            map (ML_Types.subst env) args
+            |> map (solve entries)
+            |> product
+            |> map (list_comb term)
+        | NONE => []
+      end
+  in
+    maps find entries
+  end
+
+fun resolve raw_binding typ context =
+  let
+    val classes = Classes.get context
+    val (key, (constructor, _)) = Name_Space.check context classes raw_binding
+    val ML_Types.Con (name, [ML_Types.Var _]) = constructor
+    val entries =
+      Name_Space.get classes key |> snd
+      |> Name_Space.extern_table true (Context.proof_of context) |> map snd
+    val problem = ML_Types.Con (name, [typ])
+    val solutions = solve entries problem
+  in
+    case solutions of
+      [] => error "no solutions"
+    | [solution] => enclose "(" ")" solution
+    | _ => error "too many solutions"
+  end
+
+val antiquote_setup =
+  ML_Antiquotation.inline (Binding.qualify true "ML" @{binding resolve})
+    (Scan.state -- Scan.lift (Parse.ML_source --| @{keyword "::"} -- Parse.position Parse.name)
+      >> (fn (context, (source, binding)) => resolve binding (ML_Types.read_ml_type (Input.source_content source)) context))
 
 fun pretty_classes context =
   let
@@ -80,7 +132,7 @@ fun register_instance_cmd raw_binding binding source lthy =
       let
         val classes = Classes.get context
         val (key, _) = Name_Space.check context classes raw_binding
-        val upd = Name_Space.define context true (binding, (typ, source)) #> snd
+        val upd = Name_Space.define context true (binding, (typ, Input.source_content source)) #> snd
         val classes' = Name_Space.map_table_entry key (apsnd upd) classes
       in Classes.put classes' context end
   in
@@ -107,5 +159,7 @@ val _ =
 val _ =
   Outer_Syntax.command @{command_keyword "ML.print_classes"} "print all registered classes"
     (Scan.succeed (Toplevel.keep (print_classes o Toplevel.generic_theory_of)))
+
+val setup = antiquote_setup
 
 end

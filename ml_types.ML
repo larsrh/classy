@@ -13,6 +13,12 @@ signature ML_TYPES = sig
   val ml_type_of: Proof.context -> string -> ml_type
 
   val pretty: ml_type -> Pretty.T
+
+  type env = (string * ml_type) list
+  val subst: env -> ml_type -> ml_type
+  val match: ml_type -> ml_type -> env -> env option
+
+  val strip_fun: ml_type -> ml_type list * ml_type
 end
 
 structure ML_Types: ML_TYPES = struct
@@ -25,6 +31,36 @@ datatype ml_type =
   Record of (string * ml_type) list
 
 val unit = Con ("unit", [])
+
+type env = (string * ml_type) list
+
+fun subst env (Con (name, ts)) = Con (name, map (subst env) ts)
+  | subst env (Var name) = the_default (Var name) (AList.lookup op = env name)
+  | subst env (Tuple ts) = Tuple (map (subst env) ts)
+  | subst env (Fun (x, y)) = Fun (subst env x, subst env y)
+  | subst env (Record fs) = Record (map (apsnd (subst env)) fs)
+
+fun match (Var name) t env =
+      (case AList.lookup op = env name of
+        NONE => SOME ((name, t) :: env)
+      | SOME t' => if t = t' then SOME env else NONE)
+  | match (Fun (x1, y1)) (Fun (x2, y2)) env =
+      Option.mapPartial (match y1 y2) (match x1 x2 env)
+  | match (Con (name1, ts1)) (Con (name2, ts2)) env =
+      if name1 = name2 then match_list ts1 ts2 env else NONE
+  | match (Tuple ts1) (Tuple ts2) env = match_list ts1 ts2 env
+  | match (Record fs1) (Record fs2) env =
+      if map fst fs1 = map fst fs2 then
+        match_list (map snd fs1) (map snd fs2) env
+      else
+        NONE
+  | match _ _ _ = NONE
+and match_list [] [] env = SOME env
+  | match_list (t :: ts) (u :: us) env =Option.mapPartial (match t u) (match_list ts us env)
+  | match_list _ _ _ = NONE
+
+fun strip_fun (Fun (x, y)) = let val (args, res) = strip_fun y in (x :: args, res) end
+  | strip_fun t = ([], t)
 
 fun canonicalize (Var name) = Var name
   | canonicalize (Con (name, ts)) = Con (name, map canonicalize ts)

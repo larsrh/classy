@@ -9,6 +9,8 @@ begin
 ML_file "ml_types.ML"
 ML_file "classy.ML"
 
+setup \<open>Classy.setup\<close>
+
 ML_file "pretty_class.ML"
 
 ML.class pretty = \<open>'a pretty_class\<close>
