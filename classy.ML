@@ -128,6 +128,8 @@ fun register_instance_cmd raw_binding binding source lthy =
     (* doesn't have any effect except for markup *)
     val _ = ML_Context.eval_source_in (SOME lthy) ML_Compiler.flags source
 
+    (* FIXME check correct type *)
+
     fun decl _ context =
       let
         val classes = Classes.get context
