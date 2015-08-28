@@ -2,6 +2,8 @@ theory Test
 imports Classy
 begin
 
+section \<open>Parsing and printing types\<close>
+
 ML\<open>
 fun check t =
   let
@@ -37,5 +39,12 @@ ML\<open>check "('a foo, 'b) bar Long.ident.baz"\<close>
 ML\<open>check "{a: int}"\<close>
 ML\<open>check "{a: int, b: float}"\<close>
 ML\<open>check "{a: int, b: 'a -> 'b}"\<close>
+
+section \<open>Instance resolution\<close>
+
+ML\<open>@{ML.resolve \<open>string\<close> :: pretty}\<close>
+ML\<open>@{ML.resolve \<open>string list\<close> :: pretty}\<close>
+ML\<open>@{ML.resolve \<open>string list list\<close> :: pretty}\<close>
+ML\<open>@{ML.resolve \<open>Pretty.T\<close> :: pretty}\<close>
 
 end
