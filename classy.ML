@@ -4,9 +4,10 @@ signature CLASSY = sig
 
   val register_instance_cmd: xstring * Position.T -> binding -> Input.source -> local_theory -> local_theory
 
+  val check_class: Context.generic -> string * Position.T -> string
   val print_classes: Context.generic -> unit
 
-  val resolve: xstring * Position.T -> ML_Types.ml_type -> Context.generic -> string
+  val resolve: string -> ML_Types.ml_type -> Context.generic -> string
 
   val setup: theory -> theory
 end
@@ -51,14 +52,12 @@ fun solve entries problem =
     maps find entries
   end
 
-fun resolve raw_binding typ context =
+fun resolve class typ context =
   let
     val classes = Classes.get context
-    val (key, (constructor, _)) = Name_Space.check context classes raw_binding
+    val (constructor, table) = Name_Space.get classes class
     val ML_Types.Con (name, [ML_Types.Var _]) = constructor
-    val entries =
-      Name_Space.get classes key |> snd
-      |> Name_Space.extern_table true (Context.proof_of context) |> map snd
+    val entries = map snd (Name_Space.extern_table true (Context.proof_of context) table)
     val problem = ML_Types.Con (name, [typ])
     val solutions = solve entries problem
   in
@@ -68,10 +67,17 @@ fun resolve raw_binding typ context =
     | _ => error "too many solutions"
   end
 
+fun check_class context raw_binding =
+  fst (Name_Space.check context (Classes.get context) raw_binding)
+
 val antiquote_setup =
+  ML_Antiquotation.inline (Binding.qualify true "ML" @{binding class})
+    (Scan.state -- Scan.lift (Parse.position Args.name) >>
+      (fn (context, binding) => quote (check_class context binding))) #>
   ML_Antiquotation.inline (Binding.qualify true "ML" @{binding resolve})
-    (Scan.state -- Scan.lift (Parse.ML_source --| @{keyword "::"} -- Parse.position Parse.name)
-      >> (fn (context, (source, binding)) => resolve binding (ML_Types.read_ml_type (Input.source_content source)) context))
+    (Scan.state -- Scan.lift (Parse.ML_source --| @{keyword "::"} -- Parse.position Args.name) >>
+      (fn (context, (source, binding)) =>
+         resolve (check_class context binding) (ML_Types.read_ml_type (Input.source_content source)) context))
 
 fun pretty_classes context =
   let
@@ -154,7 +160,7 @@ val _ =
           (fn ((), pos) => Binding.make ("instance" ^ Markup.print_int (serial ()), pos))
   in
     Outer_Syntax.local_theory @{command_keyword "ML.instance"} "register new type class instance"
-      (opt_binding -- (Parse.ML_source --| @{keyword "::"} -- Parse.position Parse.name)
+      (opt_binding -- (Parse.ML_source --| @{keyword "::"} -- Parse.position Args.name)
         >> (fn (binding, (source, name)) => register_instance_cmd name binding source))
   end
 
