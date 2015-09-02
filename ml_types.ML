@@ -160,7 +160,6 @@ val typ =
 
 fun read_binding s =
   let
-    val s = hd (rev (split_lines s)) (* filter out warnings *)
     val colon = (ML_Lex.Keyword, ":")
     val semicolon = (ML_Lex.Keyword, ";")
     fun unpack_tok tok = (ML_Lex.kind_of tok, ML_Lex.content_of tok)
