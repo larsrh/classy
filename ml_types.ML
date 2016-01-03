@@ -69,7 +69,7 @@ fun canonicalize (Var name) = Var name
   | canonicalize (Tuple ts) = Tuple (map canonicalize ts)
   | canonicalize (Fun (t, u)) = Fun (canonicalize t, canonicalize u)
   | canonicalize (Record []) = unit
-  | canonicalize (Record es) = Record (sort_wrt fst (map (apsnd canonicalize) es))
+  | canonicalize (Record es) = Record (sort_by fst (map (apsnd canonicalize) es))
 
 val pretty =
   let
@@ -203,9 +203,14 @@ fun ml_type_of ctxt s =
       str_of_pos = #str_of_pos ML_Env.local_context,
       print = fn r => return := SOME r,
       error = #error ML_Env.local_context}
+    val flags =
+      {file = "generated code",
+       line = 0,
+       debug = false,
+       verbose = true}
     val _ =
       Context.setmp_thread_data (SOME (Context.Proof ctxt))
-        (fn () => Secure.use_text use_context (0, "generated code") true s) ()
+        (fn () => Secure.use_text use_context flags s) ()
     val (Fun (Con ("unit", []), typ)) = read_binding (the (! return))
   in
     typ
