@@ -157,7 +157,7 @@ val _ =
     val opt_binding =
       Parse.binding --| @{keyword "="} ||
         Parse.position (Scan.succeed ()) >>
-          (fn ((), pos) => Binding.make ("instance" ^ Markup.print_int (serial ()), pos))
+          (fn ((), pos) => Binding.make ("instance" ^ print_int (serial ()), pos))
   in
     Outer_Syntax.local_theory @{command_keyword "ML.instance"} "register new type class instance"
       (opt_binding -- (Parse.ML_source --| @{keyword "::"} -- Parse.position Args.name)
