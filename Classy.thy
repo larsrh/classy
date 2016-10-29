@@ -18,7 +18,7 @@ ML_cond ("2016") \<open>
   val print_int = Markup.print_int
 \<close>
 
-ML_cond ("2016-1-RC0") \<open>
+ML_cond ("2016-1-RC1") \<open>
   val secure_use_text = ML_Compiler0.ML
   val context_set_thread_data = Context.setmp_generic_context
   fun ml_env_context return : ML_Compiler0.context =
