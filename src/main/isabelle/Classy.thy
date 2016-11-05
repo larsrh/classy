@@ -1,5 +1,5 @@
 theory Classy
-imports "lib/multi-isabelle/Multi_Isabelle"
+imports "../multi-isabelle/Multi_Isabelle"
 keywords
   "ML.class" :: thy_decl % "ML" and
   "ML.instance" :: thy_decl % "ML" and

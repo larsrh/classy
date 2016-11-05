@@ -1,3 +1,0 @@
-[submodule "lib/multi-isabelle"]
-	path = lib/multi-isabelle
-	url = https://github.com/larsrh/multi-isabelle.git
