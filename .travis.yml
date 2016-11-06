@@ -1,6 +1,10 @@
 language: scala
 sudo: false
 jdk: oraclejdk8
+addons:
+  apt:
+    packages:
+      - lib32stdc++6
 script:
   - sbt isabelleBuild
 cache:
