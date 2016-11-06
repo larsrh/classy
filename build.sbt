@@ -7,11 +7,11 @@ licenses := Seq("MIT" -> url("http://opensource.org/licenses/MIT"))
 
 enablePlugins(LibisabellePlugin)
 moduleName := name.value
-isabelleVersions := List("2016")
+isabelleVersions := List("2016", "2016-1-RC1")
 isabelleSessions in Compile := List("Classy", "HOL-Classy")
 
 resolvers += Resolver.sonatypeRepo("releases")
-libraryDependencies += "info.hupel" % "multi-isabelle" % "0.1"
+libraryDependencies += "info.hupel" % "multi-isabelle" % "0.1.1"
 
 pomExtra := (
   <developers>
