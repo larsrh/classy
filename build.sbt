@@ -7,10 +7,12 @@ licenses := Seq("MIT" -> url("http://opensource.org/licenses/MIT"))
 
 enablePlugins(LibisabellePlugin)
 moduleName := name.value
-isabelleVersions := List("2016", "2016-1")
+isabelleVersions ~= {
+  case Seq() => List(Version.Stable("2016"), Version.Stable("2016-1"))
+  case ver => ver
+}
 isabelleSessions in Compile := List("Classy", "HOL-Classy")
 
-resolvers += Resolver.sonatypeRepo("releases")
 libraryDependencies += "info.hupel" % "multi-isabelle" % "0.1.1"
 
 pomExtra := (
@@ -37,6 +39,8 @@ credentials += Credentials(
 
 import ReleaseTransformations._
 
+releaseVcsSign := true
+
 releaseProcess := Seq[ReleaseStep](
   checkSnapshotDependencies,
   inquireVersions,
@@ -44,9 +48,15 @@ releaseProcess := Seq[ReleaseStep](
   setReleaseVersion,
   commitReleaseVersion,
   tagRelease,
-  ReleaseStep(action = Command.process("publishSigned", _)),
+  releaseStepCommand("publishSigned"),
   setNextVersion,
   commitNextVersion,
-  ReleaseStep(action = Command.process("sonatypeReleaseAll", _))
+  releaseStepCommand("sonatypeRelease")
 )
 
+publishTo := Some(
+  if (isSnapshot.value)
+    Opts.resolver.sonatypeSnapshots
+  else
+    Opts.resolver.sonatypeStaging
+)

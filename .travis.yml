@@ -7,6 +7,10 @@ addons:
       - lib32stdc++6
 script:
   - sbt isabelleBuild
+env:
+  matrix:
+    - ISABELLE_VERSION=2016
+    - ISABELLE_VERSION=2016-1
 cache:
   directories:
     - $HOME/.ivy2/cache
