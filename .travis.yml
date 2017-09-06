@@ -11,7 +11,7 @@ env:
   matrix:
     - ISABELLE_VERSION=2016
     - ISABELLE_VERSION=2016-1
-    - ISABELLE_VERSION=2017-RC0
+    - ISABELLE_VERSION=2017-RC1
 cache:
   directories:
     - $HOME/.ivy2/cache

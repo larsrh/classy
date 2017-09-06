@@ -8,7 +8,7 @@ licenses := Seq("MIT" -> url("http://opensource.org/licenses/MIT"))
 enablePlugins(LibisabellePlugin)
 moduleName := name.value
 isabelleVersions ~= {
-  case Seq() => List(Version.Stable("2016"), Version.Stable("2016-1"), Version.Stable("2017-RC0"))
+  case Seq() => List(Version.Stable("2016"), Version.Stable("2016-1"), Version.Stable("2017-RC1"))
   case ver => ver
 }
 isabelleSessions in Compile := List("Classy", "HOL-Classy")
