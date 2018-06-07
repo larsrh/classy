@@ -12,6 +12,7 @@ env:
     - ISABELLE_VERSION=2016
     - ISABELLE_VERSION=2016-1
     - ISABELLE_VERSION=2017
+    - ISABELLE_VERSION=2018-RC0
 cache:
   directories:
     - $HOME/.ivy2/cache
