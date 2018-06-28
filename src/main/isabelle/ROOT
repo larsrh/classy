@@ -1,9 +1,13 @@
 session Classy = Pure +
+  sessions
+    Multi_Isabelle
   theories
     Classy
     Test
 
 session "HOL-Classy" = HOL +
-  theories
+  sessions
     Classy
-    Test
+  theories
+    Classy.Classy
+    Classy.Test
