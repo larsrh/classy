@@ -13,8 +13,6 @@ isabelleVersions ~= {
 }
 isabelleSessions in Compile := List("Classy", "HOL-Classy")
 
-libraryDependencies += "info.hupel" % "multi-isabelle" % "0.1.1"
-
 pomExtra := (
   <developers>
     <developer>

@@ -1,6 +1,4 @@
 session Classy = Pure +
-  sessions
-    Multi_Isabelle
   theories
     Classy
     Test
