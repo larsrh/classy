@@ -4,10 +4,3 @@ session Classy = Pure +
   theories
     Classy
     Test
-
-session "HOL-Classy" = HOL +
-  sessions
-    Classy
-  theories
-    Classy.Classy
-    Classy.Test
