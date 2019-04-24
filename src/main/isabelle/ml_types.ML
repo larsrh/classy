@@ -196,15 +196,20 @@ fun ml_type_of ctxt s =
     (* code partly lifted from Spec_Check *)
     val return = Unsynchronized.ref NONE
     val s = "(fn () => (" ^ s ^ "))"
-    val use_context = ml_env_context return
+    val use_context =
+      {name_space = #name_space ML_Env.context,
+         print_depth = SOME 1000000,
+         here = #here ML_Env.context,
+         print = fn r => return := SOME r,
+         error = #error ML_Env.context}
     val flags =
       {file = "generated code",
        line = 0,
        debug = false,
        verbose = true}
     val _ =
-      context_set_thread_data (SOME (Context.Proof ctxt))
-        (fn () => secure_use_text use_context flags s) ()
+      Context.setmp_generic_context (SOME (Context.Proof ctxt))
+        (fn () => ML_Compiler0.ML use_context flags s) ()
     val (Fun (Con ("unit", []), typ)) = read_binding (the (! return))
   in
     typ

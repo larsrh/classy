@@ -77,7 +77,7 @@ val antiquote_setup =
   ML_Antiquotation.inline (Binding.qualify true "ML" @{binding resolve})
     (Scan.state -- Scan.lift (Parse.ML_source --| @{keyword "::"} -- Parse.position Args.name) >>
       (fn (context, (source, binding)) =>
-         resolve (check_class context binding) (ML_Types.read_ml_type (Input.source_content source)) context))
+         resolve (check_class context binding) (ML_Types.read_ml_type (input_source_content source)) context))
 
 fun pretty_classes context =
   let
@@ -130,7 +130,7 @@ fun register_class_cmd binding typ =
 
 fun register_instance_cmd raw_binding binding source lthy =
   let
-    val typ = ML_Types.ml_type_of lthy (Input.source_content source)
+    val typ = ML_Types.ml_type_of lthy (input_source_content source)
     (* doesn't have any effect except for markup *)
     val _ = ML_Context.eval_source_in (SOME lthy) ML_Compiler.flags source
 
@@ -140,7 +140,7 @@ fun register_instance_cmd raw_binding binding source lthy =
       let
         val classes = Classes.get context
         val (key, _) = Name_Space.check context classes raw_binding
-        val upd = Name_Space.define context true (binding, (typ, Input.source_content source)) #> snd
+        val upd = Name_Space.define context true (binding, (typ, input_source_content source)) #> snd
         val classes' = Name_Space.map_table_entry key (apsnd upd) classes
       in Classes.put classes' context end
   in
@@ -157,7 +157,7 @@ val _ =
     val opt_binding =
       Parse.binding --| @{keyword "="} ||
         Parse.position (Scan.succeed ()) >>
-          (fn ((), pos) => Binding.make ("instance" ^ print_int (serial ()), pos))
+          (fn ((), pos) => Binding.make ("instance" ^ Value.print_int (serial ()), pos))
   in
     Outer_Syntax.local_theory @{command_keyword "ML.instance"} "register new type class instance"
       (opt_binding -- (Parse.ML_source --| @{keyword "::"} -- Parse.position Args.name)

@@ -10,8 +10,8 @@ script:
 env:
   matrix:
     - ISABELLE_VERSION=2017
-    - ISABELLE_VERSION=2018-RC0
-    - ISABELLE_VERSION=2018-RC1
+    - ISABELLE_VERSION=2018
+    - ISABELLE_VERSION=2019-RC0
 cache:
   directories:
     - $HOME/.ivy2/cache

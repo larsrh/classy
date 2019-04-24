@@ -8,10 +8,12 @@ licenses := Seq("MIT" -> url("http://opensource.org/licenses/MIT"))
 enablePlugins(LibisabellePlugin)
 moduleName := name.value
 isabelleVersions ~= {
-  case Seq() => List(Version.Stable("2017"), Version.Stable("2018-RC0"), Version.Stable("2018-RC1"))
+  case Seq() => List(Version.Stable("2017"), Version.Stable("2018"), Version.Stable("2019-RC0"))
   case ver => ver
 }
 isabelleSessions in Compile := List("Classy", "HOL-Classy")
+
+libraryDependencies += "info.hupel" % "multi-isabelle" % "0.1.2"
 
 pomExtra := (
   <developers>
